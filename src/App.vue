@@ -62,6 +62,5 @@ body,
 
 .el-main {
   background-color: #fff;
-  color: #333;
 }
 </style>
