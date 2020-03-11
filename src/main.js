@@ -6,6 +6,12 @@ import router from './router'
 // Element UI
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+// Vxe-Table
+import 'xe-utils'
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/index.css'
+
+Vue.use(VXETable)
 
 Vue.config.productionTip = false
 

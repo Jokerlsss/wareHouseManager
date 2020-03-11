@@ -1,12 +1,14 @@
 <template>
   <el-menu
-    default-active="2"
+    default-active="1-2"
     class="el-menu-vertical-demo"
-    @open="handleOpen"
-    @close="handleClose"
+    @open="handleSelect"
+    @close="handleSelect"
     background-color="#545c64"
     text-color="#fff"
     active-text-color="#25C386"
+    router
+    @select="handleSelect"
   >
     <el-submenu index="1">
       <template slot="title">
@@ -42,10 +44,7 @@
 <script>
 export default {
   methods: {
-    handleOpen (key, keyPath) {
-      console.log(key, keyPath)
-    },
-    handleClose (key, keyPath) {
+    handleSelect (key, keyPath) {
       console.log(key, keyPath)
     }
   }

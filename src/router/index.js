@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Index from '@/views/Index'
+import vBreadCrumb from '@/components/v-BreadCrumb'
+import StockIn from '@/views/StockIn'
 
 Vue.use(Router)
 
@@ -8,8 +9,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Index',
-      component: Index
+      name: 'vBreadCrumb',
+      component: vBreadCrumb
+    },
+    {
+      path: '/1-2',
+      name: 'StockIn',
+      component: StockIn
     }
   ]
 })
