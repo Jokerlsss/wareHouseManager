@@ -2,7 +2,7 @@
   <div class="container">
     <vxe-toolbar>
       <template v-slot:buttons>
-        <vxe-button icon="fa fa-plus" @click="insertStockIn()">新增</vxe-button>
+        <el-button @click="insertStockIn()" class="insertBtn">新增</el-button>
       </template>
     </vxe-toolbar>
 
@@ -34,6 +34,7 @@
       :loading="submitLoading"
       resize
       destroy-on-close
+      mask-closable
     >
       <vxe-form
         :data="formData"
@@ -68,7 +69,6 @@
           title="备注"
           field="remark"
           span="23"
-          :title-suffix="{message: '啦啦啦，就是这么强大！！！', icon: 'fa fa-question-circle'}"
           :item-render="{name: 'textarea', attrs: {placeholder: '请输入备注'}}"
         ></vxe-form-item>
         <!-- 入库产品详情信息 -->
@@ -92,7 +92,7 @@
           show-overflow
           ref="xTable"
           class="my_table_insert"
-          max-height="300"
+          max-height="200"
           :data="tableProductData"
           :edit-config="{trigger: 'click', mode: 'cell', icon: 'fa fa-pencil'}"
         >
@@ -148,36 +148,36 @@ export default {
   },
   mounted () {
     // TODO: 数据接口挂载到此钩子函数下
-    var Mock = require('mockjs')
-    var Random = Mock.Random
-    this.tableBaseData = Mock.mock({
-      // 属性 list 的值是一个数组，其中含有 1 到 10 个元素
-      //   stockInNum,stockInDate，remark
-      'list|1-10': [{
-        // 属性 id 是一个自增数，起始值为 1，每次增 1
-        'stockInNum|+1': 1,
-        'stockInDate': Random.date('yyyy-MM-dd'),
-        'remark|+3': 1,
-        'product|1-5': [{
+    this.mockTableBaseData()
+  },
+  methods: {
+    mockTableBaseData () {
+      var Mock = require('mockjs')
+      var Random = Mock.Random
+      this.tableBaseData = Mock.mock({
+        // 属性 list 的值是一个数组，其中含有 1 到 10 个元素
+        //   stockInNum,stockInDate，remark
+        'list|1-10': [{
+          // 属性 id 是一个自增数，起始值为 1，每次增 1
+          'stockInNum|+1': 1,
+          'stockInDate': Random.date('yyyy-MM-dd'),
+          'remark|+3': 1
+        }]
+      }).list
+
+      // 输出结果
+      // console.log(JSON.stringify(this.tableBaseData, null, 4))
+    },
+    mockTableProductData () {
+      var Mock = require('mockjs')
+      this.tableProductData = Mock.mock({
+        'list|1-5': [{
           'productName|+1': 'name' + 1,
           'productSize|+2': 1,
           'acount|+3': 1
         }]
-      }]
-    }).list
-
-    // for (var i = 0; i < this.tableProductData.length; i++) {
-    //   this.product.productName = this.tableBaseData[i].product.productName
-    //   this.product.productSize = this.provinceData[i].product.productSize
-    //   this.tableProductData.push(this.product)
-    // }
-    // 输出结果
-    console.log(this.tableBaseData)
-    // console.log(JSON.stringify(this.tableBaseData, null, 4))
-    console.log('-------------------------------------------')
-    // console.log('productData:', this.tableProductData)
-  },
-  methods: {
+      }).list
+    },
     formatterSex ({ cellValue }) {
       let item = this.sexList.find(item => item.value === cellValue)
       return item ? item.label : ''
@@ -192,7 +192,9 @@ export default {
       this.formData = {
         stockInNum: '',
         stockInDate: '',
-        remark: '',
+        remark: ''
+      }
+      this.tableProductData = {
         productName: '',
         productSize: '',
         acount: ''
@@ -200,14 +202,13 @@ export default {
       this.selectRow = null
       this.showEdit = true
     },
+    // TODO:在打开编辑时，带着 id 的参数访问后端，取得 tableProductData 数据
     editEvent (row) {
+      this.mockTableProductData()
       this.formData = {
         stockInNum: row.stockInNum,
         stockInDate: row.stockInDate,
-        remark: row.remark,
-        productName: row.productName,
-        productSize: row.productSize,
-        acount: row.acount
+        remark: row.remark
       }
       this.selectRow = row
       this.showEdit = true
@@ -219,6 +220,7 @@ export default {
         }
       })
     },
+    // TODO: 在新增后，分成两个 post 请求去保存
     submitEvent () {
       this.submitLoading = true
       setTimeout(() => {
@@ -242,4 +244,12 @@ export default {
 </script>
 
 <style scoped>
+.insertBtn {
+  background-color: #25c386;
+  color: #fff;
+  /* font-size: 16px; */
+}
+.insertBtn:hover {
+  opacity: 0.7;
+}
 </style>
