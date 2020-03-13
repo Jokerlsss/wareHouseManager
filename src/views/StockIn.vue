@@ -1,31 +1,57 @@
 <template>
   <div class="container">
-    <vxe-toolbar>
+    <!-- // TODO: 导出数据按钮 -->
+
+    <!-- <vxe-toolbar>
       <template v-slot:buttons>
-        <el-button @click="insertStockIn()" class="insertBtn">新增</el-button>
+        <el-button @click="insertStockIn()" class="greenBtn">新增</el-button>
       </template>
-    </vxe-toolbar>
+    </vxe-toolbar>-->
+    <div class="oprateArea">
+      <el-button @click="insertStockIn()" class="greenBtn">新增</el-button>
+    </div>
 
     <vxe-table
       border
       row-key
       highlight-hover-row
+      highlight-current-row
       ref="xTable"
       :data="tableBaseData"
       @cell-dblclick="cellDBLClickEvent"
       align="center"
+      stripe
     >
       <vxe-table-column type="seq" width="60"></vxe-table-column>
-      <vxe-table-column field="stockInNum" title="入库单号"></vxe-table-column>
-      <vxe-table-column field="stockInDate" title="入库日期" sortable></vxe-table-column>
-      <vxe-table-column field="remark" title="备注" show-overflow></vxe-table-column>
-      <vxe-table-column title="操作" width="150" show-overflow>
+      <vxe-table-column field="stockInNum" title="入库单号" sortable type="html"></vxe-table-column>
+      <vxe-table-column field="stockInDate" title="入库日期" sortable type="html"></vxe-table-column>
+      <vxe-table-column field="remark" title="备注" show-overflow type="html"></vxe-table-column>
+      <vxe-table-column title="操作" width="100" show-overflow>
         <template v-slot="{ row }">
-          <vxe-button type="text" icon="fa fa-edit" @click="editEvent(row)">编辑</vxe-button>
-          <vxe-button type="text" icon="fa fa-trash-o" @click="removeEvent(row)">删除</vxe-button>
+          <el-button type="text" icon="el-icon-edit" @click="editEvent(row)" style="color:#25c386"></el-button>
+          <el-button
+            type="text"
+            icon="el-icon-delete"
+            @click="removeEvent(row)"
+            style="color:#FF6600;"
+          ></el-button>
         </template>
       </vxe-table-column>
+      <template v-slot:empty>
+        <span style="color: #9898a0;">
+          <p>没有更多数据了！</p>
+        </span>
+      </template>
     </vxe-table>
+    <!-- 分页 -->
+    <!--// TODO: 分页数据获取-->
+    <vxe-pager
+      :current-page="tablePage.currentPage"
+      :page-size="tablePage.pageSize"
+      :total="tablePage.totalResult"
+      :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
+      @page-change="handlePageChange"
+    ></vxe-pager>
     <!-- 弹窗 -->
     <vxe-modal
       v-model="showEdit"
@@ -81,9 +107,13 @@
         ></vxe-form-item>
         <vxe-toolbar>
           <template v-slot:buttons>
-            <vxe-button icon="fa fa-plus" @click="insertRow()">新增</vxe-button>
-            <vxe-button @click="insertRow(-1)">在最后行插入</vxe-button>
-            <vxe-button @click="$refs.xTable.removeCheckboxRow()">删除选中</vxe-button>
+            <el-button icon="el-icon-plus" @click="insertRow()" class="greenBtn"></el-button>
+            <!-- <el-button @click="insertRow(-1)">在最后行插入</el-button> -->
+            <el-button
+              @click="$refs.xTable.removeCheckboxRow()"
+              icon="el-icon-delete"
+              class="dangerBtn"
+            ></el-button>
           </template>
         </vxe-toolbar>
         <!-- // TODO: 新增空值不能提交 -->
@@ -96,11 +126,16 @@
           :data="tableProductData"
           :edit-config="{trigger: 'click', mode: 'cell', icon: 'fa fa-pencil'}"
         >
+          // TODO: 输入校验
           <vxe-table-column type="checkbox" width="60"></vxe-table-column>
           <vxe-table-column type="seq" width="60"></vxe-table-column>
           <vxe-table-column field="productName" title="产品名称" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column field="productSize" title="产品规格" :edit-render="{name: 'input'}"></vxe-table-column>
-          <vxe-table-column field="acount" title="数量" :edit-render="{name: 'input',type:'number'}"></vxe-table-column>
+          <vxe-table-column
+            field="acount"
+            title="数量"
+            :edit-render="{name: 'input',attrs: { type:'number'}}"
+          ></vxe-table-column>
         </vxe-table>
         <vxe-form-item
           align="center"
@@ -113,16 +148,17 @@
 </template>
 
 <script>
+// import XEUtils from 'xe-utils'
 export default {
   data () {
     return {
       submitLoading: false,
       tableBaseData: [],
       tableProductData: [],
-      product: {
-        productName: null,
-        productSize: null,
-        acount: null
+      tablePage: {
+        currentPage: 1,
+        pageSize: 10,
+        totalResult: 0
       },
       selectRow: null,
       showEdit: false,
@@ -146,6 +182,9 @@ export default {
       }
     }
   },
+  // 全表搜索
+  // ? 如果使用了分页之后，搜索出来的结果是一页的还是多页的？
+
   mounted () {
     // TODO: 数据接口挂载到此钩子函数下
     this.mockTableBaseData()
@@ -244,12 +283,22 @@ export default {
 </script>
 
 <style scoped>
-.insertBtn {
+.oprateArea {
+  width: 100%;
+  height: auto;
+  display: flex;
+  margin-bottom: 20px;
+}
+.greenBtn {
   background-color: #25c386;
   color: #fff;
   /* font-size: 16px; */
 }
-.insertBtn:hover {
+.dangerBtn {
+  background-color: #ff3300;
+  color: #fff;
+}
+.greenBtn:hover {
   opacity: 0.7;
 }
 </style>
