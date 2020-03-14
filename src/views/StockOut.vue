@@ -16,11 +16,9 @@
       align="center"
       stripe
     >
-      <!--//? 如果入库单可以修改，假设我入库后，进行出库，出库之后修改入库日期到出库时间之后，该怎么算？-->
-
       <vxe-table-column type="seq" width="60"></vxe-table-column>
-      <vxe-table-column field="stockInNum" title="入库单号" sortable type="html"></vxe-table-column>
-      <vxe-table-column field="stockInDate" title="入库日期" sortable type="html"></vxe-table-column>
+      <vxe-table-column field="stockInNum" title="出库单号" sortable type="html"></vxe-table-column>
+      <vxe-table-column field="stockInDate" title="出库日期" sortable type="html"></vxe-table-column>
       <vxe-table-column field="remark" title="备注" show-overflow type="html"></vxe-table-column>
       <vxe-table-column title="操作" width="100" show-overflow>
         <template v-slot="{ row }">
@@ -66,7 +64,7 @@
         title-width="100"
         @submit="submitEvent"
       >
-        <!-- 入库基本信息 -->
+        <!-- 出库基本信息 -->
         <vxe-form-item
           title="基本信息"
           span="24"
@@ -74,15 +72,15 @@
           title-width="200px"
           :title-prefix="{icon: 'fa fa-address-card-o'}"
         ></vxe-form-item>
-        <!-- // TODO:入库单号使用时间戳+当天流水号（后端） -->
+        <!-- // TODO:出库单号使用时间戳+当天流水号（后端） -->
         <vxe-form-item
-          title="入库单号"
+          title="出库单号"
           field="stockInNum"
           span="12"
           :item-render="{name: '$input', props: {placeholder: '请输入名称'}}"
         ></vxe-form-item>
         <vxe-form-item
-          title="入库日期"
+          title="出库日期"
           field="stockInDate"
           span="11"
           :item-render="{name: '$input', props: {type: 'date', placeholder: '请选择日期',readonly:'true'}}"
@@ -93,9 +91,9 @@
           span="23"
           :item-render="{name: 'textarea', attrs: {placeholder: '请输入备注'}}"
         ></vxe-form-item>
-        <!-- 入库产品详情信息 -->
+        <!-- 出库产品详情信息 -->
         <vxe-form-item
-          title="入库产品信息"
+          title="出库产品信息"
           span="24"
           title-align="left"
           title-width="200px"
@@ -103,8 +101,9 @@
         ></vxe-form-item>
         <vxe-toolbar>
           <template v-slot:buttons>
-            <el-button icon="el-icon-plus" @click="insertRow()" class="greenBtn"></el-button>
+            <!-- <el-button icon="el-icon-plus" @click="insertRow()" class="greenBtn"></el-button> -->
             <!-- <el-button @click="insertRow(-1)">在最后行插入</el-button> -->
+            <el-button icon="el-icon-plus" class="greenBtn">选择库存</el-button>
             <el-button
               @click="$refs.xTable.removeCheckboxRow()"
               icon="el-icon-delete"
@@ -190,7 +189,7 @@ export default {
   methods: {
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPageToStockIn')
+      globalStore.commit('cutPageToStockOut')
     },
     mockTableBaseData () {
       var Mock = require('mockjs')
