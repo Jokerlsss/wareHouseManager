@@ -4,7 +4,7 @@
     <div class="oprateArea">
       <el-button @click="insertStockIn()" class="greenBtn">新增</el-button>
     </div>
-
+    <!-- 出库单汇总 -->
     <vxe-table
       border
       row-key
@@ -46,7 +46,7 @@
       :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
       @page-change="handlePageChange"
     ></vxe-pager>
-    <!-- 弹窗 -->
+    <!-- 编辑 & 新增 弹窗 -->
     <!-- // TODO: 当子表格新增空行时，不予保存-->
     <vxe-modal
       v-model="showEdit"
@@ -64,7 +64,7 @@
         title-width="100"
         @submit="submitEvent"
       >
-        <!-- 出库基本信息 -->
+        <!-- 出库单填写-出库基本信息 -->
         <vxe-form-item
           title="基本信息"
           span="24"
@@ -91,7 +91,7 @@
           span="23"
           :item-render="{name: 'textarea', attrs: {placeholder: '请输入备注'}}"
         ></vxe-form-item>
-        <!-- 出库产品详情信息 -->
+        <!-- 出库单填写-出库产品详情信息 -->
         <vxe-form-item
           title="出库产品信息"
           span="24"
@@ -101,9 +101,7 @@
         ></vxe-form-item>
         <vxe-toolbar>
           <template v-slot:buttons>
-            <!-- <el-button icon="el-icon-plus" @click="insertRow()" class="greenBtn"></el-button> -->
-            <!-- <el-button @click="insertRow(-1)">在最后行插入</el-button> -->
-            <el-button icon="el-icon-plus" class="greenBtn">选择库存</el-button>
+            <el-button icon="el-icon-plus" class="greenBtn" @click="choseInventory">选择库存</el-button>
             <el-button
               @click="$refs.xTable.removeCheckboxRow()"
               icon="el-icon-delete"
@@ -118,7 +116,7 @@
           ref="xTable"
           class="my_table_insert"
           max-height="200"
-          :data="tableProductData"
+          :data="selectData"
           :edit-config="{trigger: 'click', mode: 'cell', icon: 'fa fa-pencil'}"
         >
           // TODO: 输入校验
@@ -127,7 +125,7 @@
           <vxe-table-column field="productName" title="产品名称" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column field="productSize" title="产品规格" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column
-            field="acount"
+            field="amount"
             title="数量"
             :edit-render="{name: 'input',attrs: { type:'number'}}"
           ></vxe-table-column>
@@ -139,15 +137,35 @@
         ></vxe-form-item>
       </vxe-form>
     </vxe-modal>
+    <!-- // TODO:启用range范围选中 -->
+    <vxe-modal
+      v-model="showInventory"
+      width="800"
+      title="选择库存"
+      :loading="submitLoading"
+      resize
+      destroy-on-close
+      mask-closable
+    >
+      <!-- 填写出库单-打开 选择库存 界面 -->
+      <ChoseInventory @getSelectData="getListData" @closeInventory="closeInventory"></ChoseInventory>
+    </vxe-modal>
   </div>
 </template>
 
 <script>
 // import XEUtils from 'xe-utils'
 import globalStore from '../stores/global-stores'
+import ChoseInventory from '@/views/ChoseInventory'
 export default {
+  components: {
+    ChoseInventory
+  },
   data () {
     return {
+      // 接收来自库存选择的产品
+      selectData: '',
+
       submitLoading: false,
       tableBaseData: [],
       tableProductData: [],
@@ -158,6 +176,7 @@ export default {
       },
       selectRow: null,
       showEdit: false,
+      showInventory: false,
       sexList: [
         { label: '女', value: '0' },
         { label: '男', value: '1' }
@@ -187,9 +206,13 @@ export default {
     this.cutBreadTitle()
   },
   methods: {
+    // TODO！！！！！！！！！:将选择出来的数据作为全局数据存储
+    getListData (list) {
+      this.selectData = list
+    },
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPageToStockOut')
+      globalStore.commit('cutPage', 3)
     },
     mockTableBaseData () {
       var Mock = require('mockjs')
@@ -214,7 +237,7 @@ export default {
         'list|1-5': [{
           'productName|+1': 'name' + 1,
           'productSize|+2': 1,
-          'acount|+3': 1
+          'amount|+3': 1
         }]
       }).list
     },
@@ -233,10 +256,16 @@ export default {
       this.tableProductData = {
         productName: '',
         productSize: '',
-        acount: ''
+        amount: ''
       }
       this.selectRow = null
       this.showEdit = true
+    },
+    choseInventory () {
+      this.showInventory = true
+    },
+    closeInventory () {
+      this.showInventory = false
     },
     // TODO:在打开编辑时，带着 id 的参数访问后端，取得 tableProductData 数据
     editEvent (row) {

@@ -6,6 +6,7 @@
         <p>产品名称：</p>
       </div>
       <!-- // TODO: 可增加输入建议（Element） -->
+      <!-- // ? 如果我在搜索之后，点击选中 checkbox ，再进行搜索，那么上一次的选中是否就丢失了？ -->
       <div class="searchInput">
         <el-input v-model="inputProductName" placeholder="搜索产品名称" clearable></el-input>
       </div>
@@ -17,7 +18,7 @@
       </div>
       <div class="searchBtn">
         <el-button class="greenBtn" icon="el-icon-search">查找</el-button>
-        <el-button class="reset" @click="resetSearchInput">重置</el-button>
+        <el-button class="reset" @click="resetSearchInput" icon="el-icon-refresh">重置</el-button>
       </div>
     </div>
     <!-- 库存信息 -->
@@ -28,11 +29,11 @@
       highlight-current-row
       ref="xTable"
       :data="tableInventoryData"
-      @cell-dblclick="cellDBLClickEvent"
       align="center"
       stripe
+      :checkbox-config="{ trigger: 'row'}"
     >
-      <vxe-table-column type="seq" width="60"></vxe-table-column>
+      <vxe-table-column type="checkbox" width="60"></vxe-table-column>
       <vxe-table-column field="productName" title="产品名称" sortable type="html"></vxe-table-column>
       <vxe-table-column field="productSize" title="产品规格" sortable type="html"></vxe-table-column>
       <vxe-table-column field="amount" title="数量" show-overflow type="html"></vxe-table-column>
@@ -52,15 +53,23 @@
       :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
       @page-change="handlePageChange"
     ></vxe-pager>
+
+    <div class="bottom">
+      <el-button class="greenBtn" @click="getSelectData">确定</el-button>
+      <el-button class="reset">取消</el-button>
+    </div>
   </div>
 </template>
 
 <script>
 // import XEUtils from 'xe-utils'
-import globalStore from '../stores/global-stores'
+// import globalStore from '../stores/global-stores'
 export default {
   data () {
     return {
+      // 向“出库单”传递已选择库存
+      selectData: '',
+
       inputProductName: '',
       inputProductSize: '',
       submitLoading: false,
@@ -73,10 +82,7 @@ export default {
       },
       selectRow: null,
       showEdit: false,
-      sexList: [
-        { label: '女', value: '0' },
-        { label: '男', value: '1' }
-      ],
+
       formData: {
         productName: null,
         productSize: null,
@@ -99,12 +105,21 @@ export default {
   mounted () {
     // TODO: 数据接口挂载到此钩子函数下
     this.mockTableInventoryData()
-    this.cutBreadTitle()
   },
   methods: {
-    cutBreadTitle () {
-      console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPage', 2)
+    transferSelectData () {
+      this.$emit('getSelectData', this.selectData)
+      this.$emit('closeInventory')
+    },
+    getSelectData () {
+      let selectRecords = this.$refs.xTable.getCheckboxRecords()
+      this.selectData = selectRecords
+      // 当选中之后，删除选中的数据以防在第二次选择库存时重复选择
+      for (var i = 0; i < this.selectData.length; i++) {
+        this.$refs.xTable.remove(this.selectData)
+      }
+      this.transferSelectData()
+      // console.log(this.selectData)
     },
     resetSearchInput () {
       this.inputProductName = ''
@@ -142,31 +157,6 @@ export default {
     },
     cellDBLClickEvent ({ row }) {
       this.editEvent(row)
-    },
-    insertStockIn () {
-      this.formData = {
-        productName: '',
-        productSize: '',
-        amount: ''
-      }
-      this.tableProductData = {
-        productName: '',
-        productSize: '',
-        amount: ''
-      }
-      this.selectRow = null
-      this.showEdit = true
-    },
-    // TODO:在打开编辑时，带着 id 的参数访问后端，取得 tableProductData 数据
-    editEvent (row) {
-      this.mockTableProductData()
-      this.formData = {
-        productName: row.productName,
-        productSize: row.productSize,
-        amount: row.amount
-      }
-      this.selectRow = row
-      this.showEdit = true
     },
     removeEvent (row) {
       this.$XModal.confirm('您确定要删除该数据?').then(type => {

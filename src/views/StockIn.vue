@@ -4,7 +4,7 @@
     <div class="oprateArea">
       <el-button @click="insertStockIn()" class="greenBtn">新增</el-button>
     </div>
-
+    <!-- 入库单信息汇总 -->
     <vxe-table
       border
       row-key
@@ -48,7 +48,7 @@
       :layouts="['PrevPage', 'JumpNumber', 'NextPage', 'FullJump', 'Sizes', 'Total']"
       @page-change="handlePageChange"
     ></vxe-pager>
-    <!-- 弹窗 -->
+    <!-- 编辑 & 新增 弹窗 -->
     <!-- // TODO: 当子表格新增空行时，不予保存-->
     <vxe-modal
       v-model="showEdit"
@@ -66,7 +66,7 @@
         title-width="100"
         @submit="submitEvent"
       >
-        <!-- 入库基本信息 -->
+        <!-- 填写入库单-入库基本信息 -->
         <vxe-form-item
           title="基本信息"
           span="24"
@@ -93,7 +93,7 @@
           span="23"
           :item-render="{name: 'textarea', attrs: {placeholder: '请输入备注'}}"
         ></vxe-form-item>
-        <!-- 入库产品详情信息 -->
+        <!-- 填写入库单-入库产品详情信息 -->
         <vxe-form-item
           title="入库产品信息"
           span="24"
@@ -128,7 +128,7 @@
           <vxe-table-column field="productName" title="产品名称" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column field="productSize" title="产品规格" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column
-            field="acount"
+            field="amount"
             title="数量"
             :edit-render="{name: 'input',attrs: { type:'number'}}"
           ></vxe-table-column>
@@ -159,10 +159,6 @@ export default {
       },
       selectRow: null,
       showEdit: false,
-      sexList: [
-        { label: '女', value: '0' },
-        { label: '男', value: '1' }
-      ],
       formData: {
         stockInNum: null,
         stockInDate: null,
@@ -190,7 +186,7 @@ export default {
   methods: {
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPageToStockIn')
+      globalStore.commit('cutPage', 1)
     },
     mockTableBaseData () {
       var Mock = require('mockjs')
@@ -215,7 +211,7 @@ export default {
         'list|1-5': [{
           'productName|+1': 'name' + 1,
           'productSize|+2': 1,
-          'acount|+3': 1
+          'amount|+3': 1
         }]
       }).list
     },
@@ -234,7 +230,7 @@ export default {
       this.tableProductData = {
         productName: '',
         productSize: '',
-        acount: ''
+        amount: ''
       }
       this.selectRow = null
       this.showEdit = true
