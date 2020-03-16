@@ -31,7 +31,7 @@
       :data="tableInventoryData"
       align="center"
       stripe
-      :checkbox-config="{ trigger: 'row'}"
+      :checkbox-config="{ trigger: 'row',highlight: true, range: true}"
     >
       <vxe-table-column type="checkbox" width="60"></vxe-table-column>
       <vxe-table-column field="productName" title="产品名称" sortable type="html"></vxe-table-column>
@@ -73,7 +73,28 @@ export default {
       inputProductName: '',
       inputProductSize: '',
       submitLoading: false,
-      tableInventoryData: [],
+      tableInventoryData: [
+        {
+          productName: '产品1',
+          productSize: 'large',
+          amount: 10
+        },
+        {
+          productName: '产品2',
+          productSize: 'large',
+          amount: 100
+        },
+        {
+          productName: '产品3',
+          productSize: 'large',
+          amount: 5
+        },
+        {
+          productName: '产品4',
+          productSize: 'large',
+          amount: 8
+        }
+      ],
       tableProductData: [],
       tablePage: {
         currentPage: 1,
@@ -104,7 +125,7 @@ export default {
 
   mounted () {
     // TODO: 数据接口挂载到此钩子函数下
-    this.mockTableInventoryData()
+    // this.mockTableInventoryData()
   },
   methods: {
     transferSelectData () {
