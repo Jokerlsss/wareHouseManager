@@ -112,6 +112,7 @@
         <!-- // TODO: 新增空值不能提交 -->
 
         <el-table :data="selectData" style="width: 100%;" stripe>
+          <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="productName" label="产品名称" align="center"></el-table-column>
           <el-table-column prop="productSize" label="产品规格" align="center"></el-table-column>
           <el-table-column prop="amount" label="数量" align="center">
@@ -121,13 +122,14 @@
               <el-tooltip
                 class="item"
                 effect="dark"
-                :content="'最多出库 '+maxAmount+' 件'"
+                :content="'最多出库 '+scope.row.maxAmount+' 件'"
                 placement="top-start"
               >
                 <el-input-number
                   v-model="scope.row.amount"
                   @input="amountInputEvent"
-                  :max="isMax?scope.row.amount:maxAmount"
+                  :max="scope.row.maxAmount"
+                  :min="1"
                   @focus="amountFocusEvent"
                   @blur="amountBlurEvent"
                   @change="amountChangeEvent"
@@ -174,7 +176,6 @@ export default {
       selectData: [],
       maxAmount: '',
       inputValue: '',
-      isMax: true,
 
       submitLoading: false,
       tableBaseData: [],
@@ -213,34 +214,19 @@ export default {
     this.cutBreadTitle()
   },
   methods: {
-    // TODO:获得焦点时触发，生成当前控件的最大值，失去焦点的时候触发，取消当前控件最大值
-    // TODO:在输入的时候与最大值进行判断
-    amountInputEvent (e) {
-      console.log('input:', e)
-    },
-    amountFocusEvent (e) {
-      // TODO：当isMax为false的时候，不可将e.target.value赋值给maxAmount
-      this.maxAmount = e.target.value
-      this.isMax = false
-      console.log('获取焦点：', e)
-    },
-    amountBlurEvent (e) {
-      console.log('失去焦点：', e)
-      this.maxAmount = ''
-    },
-    amountChangeEvent (e) {
-      console.log('change：', e)
-    },
     // // 将选择出来的数据作为全局数据存储
-    // TODO: 设置输入数值不能大于库存
+    // // 设置输入数值不能大于库存
     // // 选择库存之后应该为 push 到最后一行数据，而非覆盖
+    // TODO: 不能选择一样的东西
     getListData (list) {
       for (var i = 0; i < list.length; i++) {
+        // 将当前库存值，作为可选的最大出库数量，用新的属性字段存进数组中
+        this.$set(list[i], 'maxAmount', list[i].amount)
         this.selectData.push(list[i])
       }
+      console.log(this.selectData)
     },
     cutBreadTitle () {
-      console.log(globalStore.state.currentPage)
       globalStore.commit('cutPage', 3)
     },
     mockTableBaseData () {
