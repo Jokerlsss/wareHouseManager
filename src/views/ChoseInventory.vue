@@ -22,6 +22,8 @@
       </div>
     </div>
     <!-- 库存信息 -->
+    <!-- reserve 属性保证在分页之后还能保持复选框的选中状态 -->
+    <!-- // TODO:checkMethod：是否允许勾选的方法，该方法 Function({row}) 的返回值用来决定这一行的 checkbox 是否可以勾选 -->
     <vxe-table
       border
       row-key
@@ -31,9 +33,10 @@
       :data="tableInventoryData"
       align="center"
       stripe
-      :checkbox-config="{ trigger: 'row',highlight: true, range: true}"
+      reserve
+      :checkbox-config="{ trigger: 'row',highlight: true, checkMethod}"
     >
-      <vxe-table-column type="checkbox" width="60"></vxe-table-column>
+      <vxe-table-column type="checkbox" width="60" disabled="true"></vxe-table-column>
       <vxe-table-column field="productName" title="产品名称" sortable type="html"></vxe-table-column>
       <vxe-table-column field="productSize" title="产品规格" sortable type="html"></vxe-table-column>
       <vxe-table-column field="amount" title="数量" show-overflow type="html"></vxe-table-column>
@@ -65,31 +68,39 @@
 // import XEUtils from 'xe-utils'
 // import globalStore from '../stores/global-stores'
 export default {
+  props: {
+    selectDataId: ''
+  },
   data () {
     return {
       // 向“出库单”传递已选择库存
       selectData: '',
+      checkRowKeys: '',
 
       inputProductName: '',
       inputProductSize: '',
       submitLoading: false,
       tableInventoryData: [
         {
+          _XID: 'row_1',
           productName: '产品1',
           productSize: 'large',
           amount: 10
         },
         {
+          _XID: 'row_2',
           productName: '产品2',
           productSize: 'large',
           amount: 100
         },
         {
+          _XID: 'row_3',
           productName: '产品3',
           productSize: 'large',
           amount: 5
         },
         {
+          _XID: 'row_4',
           productName: '产品4',
           productSize: 'large',
           amount: 8
@@ -128,19 +139,27 @@ export default {
     // this.mockTableInventoryData()
   },
   methods: {
+    // 禁用已选库存可选性
+    checkMethod ({ row, rowIndex }) {
+      // TODO: 禁用可选性
+      if (row._XID !== this.selectDataId[rowIndex - 2]) {
+        console.log(row._XID, this.selectDataId[rowIndex - 1])
+        return true
+      } else {
+        console.log(row._XID, this.selectDataId[rowIndex - 1])
+        return false
+      }
+    },
+    // 选择的库存数据传递到出库单
     transferSelectData () {
       this.$emit('getSelectData', this.selectData)
       this.$emit('closeInventory')
     },
+    // 获取选取的数据
     getSelectData () {
       let selectRecords = this.$refs.xTable.getCheckboxRecords()
       this.selectData = selectRecords
-      // 当选中之后，删除选中的数据以防在第二次选择库存时重复选择
-      for (var i = 0; i < this.selectData.length; i++) {
-        this.$refs.xTable.remove(this.selectData)
-      }
       this.transferSelectData()
-      // console.log(this.selectData)
     },
     resetSearchInput () {
       this.inputProductName = ''

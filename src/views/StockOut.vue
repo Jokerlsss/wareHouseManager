@@ -157,7 +157,11 @@
       mask-closable
     >
       <!-- 填写出库单-打开 选择库存 界面 -->
-      <ChoseInventory @getSelectData="getListData" @closeInventory="closeInventory"></ChoseInventory>
+      <ChoseInventory
+        :selectDataId="selectDataId"
+        @getSelectData="getListData"
+        @closeInventory="closeInventory"
+      ></ChoseInventory>
     </vxe-modal>
   </div>
 </template>
@@ -174,6 +178,7 @@ export default {
     return {
       // 接收来自库存选择的产品
       selectData: [],
+      selectDataId: [],
       maxAmount: '',
       inputValue: '',
 
@@ -218,13 +223,21 @@ export default {
     // // 设置输入数值不能大于库存
     // // 选择库存之后应该为 push 到最后一行数据，而非覆盖
     // TODO: 不能选择一样的东西
+    // ? 1.可否使用缓存，存放已勾选过的数据，选过来后直接覆盖原数组
+    // ! 1.但是这样就有一个问题：在我修改完数量之后，再继续选库存的话，数量就会被重置
+    // ? 2.可否当数组取过来时，多加一个存放row_id的数组，用该数组传到子组件中，去比对就可以减少循环的次数
+    // ? 2.若有重复就不给勾选
+    // ? 3.将rowid传进去，禁用掉对应rowid 的checkbox
+    // TODO: reserve-selection 可以保持在数据更新后，选中项不变（用于查库存时可以边查边选）
+    // TODO: 删除出库产品
     getListData (list) {
       for (var i = 0; i < list.length; i++) {
         // 将当前库存值，作为可选的最大出库数量，用新的属性字段存进数组中
         this.$set(list[i], 'maxAmount', list[i].amount)
         this.selectData.push(list[i])
+        this.selectDataId.push(list[i]._XID)
       }
-      console.log(this.selectData)
+      console.log('selectDataId:', this.selectDataId)
     },
     cutBreadTitle () {
       globalStore.commit('cutPage', 3)
