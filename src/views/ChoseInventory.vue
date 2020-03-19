@@ -34,7 +34,7 @@
       align="center"
       stripe
       reserve
-      :checkbox-config="{ trigger: 'row',highlight: true, checkMethod}"
+      :checkbox-config="{ trigger: 'row',highlight: true, checkRowKeys:selectDataId}"
     >
       <vxe-table-column type="checkbox" width="60" disabled="true"></vxe-table-column>
       <vxe-table-column field="productName" title="产品名称" sortable type="html"></vxe-table-column>
@@ -82,25 +82,25 @@ export default {
       submitLoading: false,
       tableInventoryData: [
         {
-          _XID: 'row_1',
+          _XID: '1',
           productName: '产品1',
           productSize: 'large',
           amount: 10
         },
         {
-          _XID: 'row_2',
+          _XID: '2',
           productName: '产品2',
           productSize: 'large',
           amount: 100
         },
         {
-          _XID: 'row_3',
+          _XID: '3',
           productName: '产品3',
           productSize: 'large',
           amount: 5
         },
         {
-          _XID: 'row_4',
+          _XID: '4',
           productName: '产品4',
           productSize: 'large',
           amount: 8
@@ -140,16 +140,17 @@ export default {
   },
   methods: {
     // 禁用已选库存可选性
-    checkMethod ({ row, rowIndex }) {
-      // TODO: 禁用可选性
-      if (row._XID !== this.selectDataId[rowIndex - 2]) {
-        console.log(row._XID, this.selectDataId[rowIndex - 1])
-        return true
-      } else {
-        console.log(row._XID, this.selectDataId[rowIndex - 1])
-        return false
-      }
-    },
+    // checkMethod ({ row, rowIndex }) {
+    //   console.log(this.selectDataId)
+    //   // TODO: 禁用可选性(尝试下另外一种做法，已选中的选项第二次打开仍选中着，若删除选中则覆盖原先数组)
+    //   if (row._XID !== this.selectDataId[rowIndex - 1]) {
+    //     // console.log('true:', row._XID, this.selectDataId[rowIndex - 1], rowIndex)
+    //     return true
+    //   } else {
+    //     // console.log('false:', row._XID, this.selectDataId[rowIndex - 1], rowIndex)
+    //     return false
+    //   }
+    // },
     // 选择的库存数据传递到出库单
     transferSelectData () {
       this.$emit('getSelectData', this.selectData)

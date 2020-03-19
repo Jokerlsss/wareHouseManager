@@ -231,12 +231,15 @@ export default {
     // TODO: reserve-selection 可以保持在数据更新后，选中项不变（用于查库存时可以边查边选）
     // TODO: 删除出库产品
     getListData (list) {
+      this.selectDataId = []
       for (var i = 0; i < list.length; i++) {
         // 将当前库存值，作为可选的最大出库数量，用新的属性字段存进数组中
         this.$set(list[i], 'maxAmount', list[i].amount)
-        this.selectData.push(list[i])
+        // this.selectData.push(list[i])
+        // TODO：后台需要增加“产品ID”，保持自增即可
         this.selectDataId.push(list[i]._XID)
       }
+      this.selectData = list
       console.log('selectDataId:', this.selectDataId)
     },
     cutBreadTitle () {
