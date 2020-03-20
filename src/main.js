@@ -10,6 +10,9 @@ import 'element-ui/lib/theme-chalk/index.css'
 import 'xe-utils'
 import VXETable from 'vxe-table'
 import 'vxe-table/lib/index.css'
+// axios
+import axios from 'axios'
+Vue.prototype.$http = axios
 
 Vue.use(VXETable)
 

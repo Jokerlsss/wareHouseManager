@@ -154,7 +154,7 @@ export default {
       tableProductData: [],
       tablePage: {
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 5,
         totalResult: 0
       },
       selectRow: null,
@@ -180,10 +180,34 @@ export default {
 
   mounted () {
     // TODO: 数据接口挂载到此钩子函数下
-    this.mockTableBaseData()
+    // this.mockTableBaseData()
     this.cutBreadTitle()
+    this.getTableBaseData()
   },
   methods: {
+    handlePageChange ({ currentPage, pageSize }) {
+      this.tablePage.currentPage = currentPage
+      this.tablePage.pageSize = pageSize
+      this.getTableBaseData()
+    },
+    getTableBaseData () {
+      this.$http({
+        method: 'get',
+        url: `http://localhost:9090/StockIn/page`,
+        params: {
+          current: this.tablePage.currentPage,
+          size: this.tablePage.pageSize
+        }
+      }).then((res) => {
+        console.log('getRes:', res)
+        this.tableBaseData = res.data.records
+        console.log(this.tableBaseData)
+        this.tablePage.totalResult = res.data.total
+      }).catch(function (err) {
+        console.log('err:', err)
+      })
+    },
+    // 切换面包屑名称显示
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
       globalStore.commit('cutPage', 1)

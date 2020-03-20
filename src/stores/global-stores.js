@@ -16,9 +16,9 @@ export default new Vuex.Store({
             var inventory = 2
             var stockOut = 3
             if (page === stockIn) {
-                state.currentPage = '库存'
-            } else if (page === inventory) {
                 state.currentPage = '入库单汇总'
+            } else if (page === inventory) {
+                state.currentPage = '库存'
             } else if (page === stockOut) {
                 state.currentPage = '出库单汇总'
             }
