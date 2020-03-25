@@ -2,8 +2,13 @@
   <div id="app">
     <el-container>
       <!-- 侧边栏 -->
+      <!-- // TODO: 侧边栏的树形控件 -> 手风琴模式  可能符合 navmenu 的新样式 -->
       <el-aside width="200px">
-        <vNavMenu></vNavMenu>
+        <div class="inputDiv">
+          <el-input placeholder="请输入内容" v-model="input" clearable @input="inputChange"></el-input>
+        </div>
+
+        <vNavMenu ref="judgeInputIsShow"></vNavMenu>
       </el-aside>
       <el-container>
         <!-- 顶部 -->
@@ -27,10 +32,19 @@ export default {
   components: {
     vNavMenu,
     vBreadCrumb
+  },
+  data () {
+    return {
+      input: ''
+    }
+  },
+  methods: {
+    inputChange () {
+      this.$refs['judgeInputIsShow'].judgeInputIsShow(this.input)
+    }
   }
 }
 </script>
-
 <style>
 html,
 body,
@@ -56,11 +70,27 @@ body,
 }
 
 .el-aside {
-  background-color: #545c64;
+  background-color: #2b303b;
   color: #333;
 }
 
 .el-main {
   background-color: #fff;
+}
+/* 搜索输入框 */
+.inputDiv {
+  padding-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+.inputDiv > .el-input {
+  width: 85%;
+}
+.inputDiv > .el-input > .el-input__inner {
+  background-color: #e9eef3;
+  width: 100%;
+  border-radius: 20px;
 }
 </style>

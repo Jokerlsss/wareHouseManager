@@ -157,6 +157,7 @@ export default {
         pageSize: 5,
         totalResult: 0
       },
+
       selectRow: null,
       showEdit: false,
       formData: {
