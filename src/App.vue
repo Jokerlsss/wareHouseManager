@@ -91,6 +91,6 @@ body,
 .inputDiv > .el-input > .el-input__inner {
   background-color: #e9eef3;
   width: 100%;
-  border-radius: 20px;
+  border-radius: 10px;
 }
 </style>
