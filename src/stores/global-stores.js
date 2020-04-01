@@ -12,8 +12,8 @@ export default new Vuex.Store({
     mutations: {
         // 项目页面-切换成列表形式
         cutPage: (state, page) => {
-            var stockIn = 1
-            var inventory = 2
+            var stockIn = '1-1-1'
+            var inventory = '2-1-1'
             var stockOut = 3
             if (page === stockIn) {
                 state.currentPage = '入库单汇总'

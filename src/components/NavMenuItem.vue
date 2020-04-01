@@ -10,8 +10,7 @@
         </el-menu-item>
       </el-tooltip>
 
-      <!-- // TODO: 在router中添加对应路径后，选中菜单栏时没有颜色 -->
-      <!-- // TODO: tooltip展示时，子级会展示父级的信息 -->
+      <!-- // TODO: tooltip展示时，改成子级不展示父级的信息 -->
       <!-- <el-tooltip class="item" effect="dark" :content="menuItem.title" placement="right"> -->
       <el-submenu :index="menuItem.index" v-if="menuItem.child">
         <template slot="title">

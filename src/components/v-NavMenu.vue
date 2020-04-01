@@ -131,7 +131,8 @@ export default {
     handleSelect (key, keyPath) {
       console.log(key, keyPath)
     },
-    // 根据查询条件判断 menu 是否展示出来
+    // search：根据查询条件判断 menu 是否展示出来
+    // ? 可否使用递归调用来查询
     judgeInputIsShow (input) {
       for (var i = 0; i < this.menuList.length; i++) {
         // search():返回值 -1 不存在，返回值 0 则存在

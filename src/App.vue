@@ -2,7 +2,6 @@
   <div id="app">
     <el-container>
       <!-- 侧边栏 -->
-      <!-- // TODO: 侧边栏的树形控件 -> 手风琴模式  可能符合 navmenu 的新样式 -->
       <el-aside width="200px">
         <div class="inputDiv">
           <el-input placeholder="请输入内容" v-model="input" clearable @input="inputChange"></el-input>

@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <!-- // TODO: 导出数据按钮 -->
     <div class="oprateArea">
       <div class="searchText">
         <p>产品名称：</p>
@@ -104,7 +103,7 @@ export default {
   methods: {
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPage', 2)
+      globalStore.commit('cutPage', '2-1-1')
     },
     resetSearchInput () {
       this.inputProductName = ''

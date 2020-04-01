@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <!-- // TODO: 导出数据按钮 -->
     <div class="oprateArea">
       <el-button @click="insertStockIn()" class="greenBtn">新增</el-button>
     </div>

@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <!-- // TODO: 导出数据按钮 -->
     <div class="oprateArea">
       <el-button @click="insertStockIn()" class="greenBtn">新增</el-button>
     </div>
@@ -74,7 +73,6 @@
           title-width="200px"
           :title-prefix="{icon: 'fa fa-address-card-o'}"
         ></vxe-form-item>
-        <!-- // TODO:入库单号使用时间戳+当天流水号（后端） -->
         <vxe-form-item
           title="入库单号"
           field="stockInNum"
@@ -105,11 +103,8 @@
           <template v-slot:buttons>
             <el-button icon="el-icon-plus" @click="insertRow()" class="greenBtn"></el-button>
             <!-- <el-button @click="insertRow(-1)">在最后行插入</el-button> -->
-            <el-button
-              @click="$refs.xTable.removeCheckboxRow()"
-              icon="el-icon-delete"
-              class="dangerBtn"
-            ></el-button>
+            <el-button @click="removeRow" icon="el-icon-delete" class="dangerBtn"></el-button>
+            <el-button @click="getSelectTion">Test</el-button>
           </template>
         </vxe-toolbar>
         <!-- // TODO: 新增空值不能提交 -->
@@ -151,7 +146,19 @@ export default {
     return {
       submitLoading: false,
       tableBaseData: [],
-      tableProductData: [],
+      tableProductData: [
+        {
+          productName: '',
+          productSize: '',
+          amount: ''
+        }
+      ],
+      // tableProductData 中的每一行详细数据
+      productDetailData: {
+        productName: '',
+        productSize: '',
+        amount: ''
+      },
       tablePage: {
         currentPage: 1,
         pageSize: 5,
@@ -186,11 +193,16 @@ export default {
     this.getTableBaseData()
   },
   methods: {
+    // 删除行
+    removeRow () {
+      this.$refs.xTable.removeCheckboxRow()
+    },
     handlePageChange ({ currentPage, pageSize }) {
       this.tablePage.currentPage = currentPage
       this.tablePage.pageSize = pageSize
       this.getTableBaseData()
     },
+    // 获取分页数据
     getTableBaseData () {
       this.$http({
         method: 'get',
@@ -200,9 +212,8 @@ export default {
           size: this.tablePage.pageSize
         }
       }).then((res) => {
-        console.log('getRes:', res)
         this.tableBaseData = res.data.records
-        console.log(this.tableBaseData)
+        console.log('this.tableBaseData:', this.tableBaseData)
         this.tablePage.totalResult = res.data.total
       }).catch(function (err) {
         console.log('err:', err)
@@ -211,7 +222,7 @@ export default {
     // 切换面包屑名称显示
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPage', 1)
+      globalStore.commit('cutPage', '1-1-1')
     },
     mockTableBaseData () {
       var Mock = require('mockjs')
@@ -252,11 +263,13 @@ export default {
         stockInDate: '',
         remark: ''
       }
-      this.tableProductData = {
-        productName: '',
-        productSize: '',
-        amount: ''
-      }
+      this.tableProductData = [
+        {
+          productName: '',
+          productSize: '',
+          amount: ''
+        }
+      ]
       this.selectRow = null
       this.showEdit = true
     },
@@ -271,6 +284,7 @@ export default {
       this.selectRow = row
       this.showEdit = true
     },
+    // TODO 删除行时应删除对应的子数组productDetailData
     removeEvent (row) {
       this.$XModal.confirm('您确定要删除该数据?').then(type => {
         if (type === 'confirm') {
@@ -280,22 +294,69 @@ export default {
     },
     // TODO: 在新增后，分成两个 post 请求去保存
     submitEvent () {
-      this.submitLoading = true
-      setTimeout(() => {
-        this.submitLoading = false
-        this.showEdit = false
-        if (this.selectRow) {
-          this.$XModal.message({ message: '保存成功', status: 'success' })
-          Object.assign(this.selectRow, this.formData)
-        } else {
-          this.$XModal.message({ message: '新增成功', status: 'success' })
-          this.$refs.xTable.insert(this.formData)
-        }
-      }, 500)
+      console.log(this.tableProductData)
+      if (this.isProductDetailDataNull()) {
+        this.submitLoading = true
+        setTimeout(() => {
+          this.submitLoading = false
+          this.showEdit = false
+          if (this.selectRow) {
+            this.$XModal.message({ message: '保存成功', status: 'success' })
+            Object.assign(this.selectRow, this.formData)
+          } else {
+            this.$XModal.message({ message: '新增成功', status: 'success' })
+            this.$refs.xTable.insert(this.formData)
+          }
+        }, 500)
+      } else {
+        // 当有数据为空时，不予提交并且提示警告
+        this.$message({
+          message: '请填写完整表格后再提交噢！',
+          type: 'warning'
+        })
+      }
     },
+    // 新增行
     async insertRow (row) {
+      console.log('tableProductData:', this.tableProductData)
+      // 将行数据置空，可以push进父数组
+      this.productDetailData = {
+        productName: '',
+        productSize: '',
+        amount: ''
+      }
+      this.tableProductData.push(this.productDetailData)
       let { row: newRow } = await this.$refs.xTable.insertAt(row)
       await this.$refs.xTable.setActiveCell(newRow, 'sex')
+    },
+    // 判断子表中是否有空值
+    isProductDetailDataNull () {
+      var isNullFlag
+      console.log('pdd:', this.tableProductData)
+      for (let i = 0; i < this.tableProductData.length; i++) {
+        console.log(this.tableProductData[i].productName)
+        console.log(this.tableProductData[i].productSize)
+        console.log(this.tableProductData[i].amount)
+        if (this.tableProductData[i].productName === '' || this.tableProductData[i].productSize === '' || this.tableProductData[i].amount === '') {
+          isNullFlag = false
+          break
+        } else {
+          isNullFlag = true
+        }
+      }
+      console.log('isNullFlag:', isNullFlag)
+      return isNullFlag
+    },
+    getSelectTion () {
+      // 获取选中的 XID
+      var idList = []
+      let selectRecords = this.$refs.xTable.getCheckboxRecords()
+      for (var i = 0; i < selectRecords.length; i++) {
+        idList.push(selectRecords[i]._XID)
+      }
+      // TODO: 根据获取的 XID 删除对应数组
+      this.removeRow()
+      console.log('idList:', idList)
     }
   }
 }
