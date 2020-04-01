@@ -7,7 +7,6 @@ import StockOut from '@/views/StockOut'
 
 Vue.use(Router)
 
-// TODO: 在刷新页面后，页面仍停留在原本打开的路由路径上
 export default new Router({
   routes: [
     {
@@ -16,12 +15,12 @@ export default new Router({
       component: StockIn
     },
     {
-      path: '/1',
+      path: '/1-1-1',
       name: 'StockIn',
       component: StockIn
     },
     {
-      path: '/2',
+      path: '/2-1-1',
       name: 'Inventory',
       component: Inventory
     },
