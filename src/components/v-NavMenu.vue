@@ -115,6 +115,14 @@ export default {
           isShow: true,
           icon: 'el-icon-upload2',
           child: null
+        },
+        {
+          index: '4',
+          content: '出库（新）',
+          title: '出库（新）',
+          isShow: true,
+          icon: 'el-icon-upload2',
+          child: null
         }
       ]
     }

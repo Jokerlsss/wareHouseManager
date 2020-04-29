@@ -58,56 +58,47 @@
       destroy-on-close
       mask-closable
     >
-      <vxe-form
-        :data="formData"
-        :rules="formRules"
-        title-align="right"
-        title-width="100"
-        @submit="submitEvent"
-      >
-        <!-- 填写入库单-入库基本信息 -->
-        <vxe-form-item
-          title="基本信息"
-          span="24"
-          title-align="left"
-          title-width="200px"
-          :title-prefix="{icon: 'fa fa-address-card-o'}"
-        ></vxe-form-item>
-        <vxe-form-item
-          title="入库单号"
-          field="stockInNum"
-          span="12"
-          :item-render="{name: '$input', props: {placeholder: '请输入名称'}}"
-        ></vxe-form-item>
-        <vxe-form-item
-          title="入库日期"
-          field="stockInDate"
-          span="11"
-          :item-render="{name: '$input', props: {type: 'date', placeholder: '请选择日期',readonly:'true'}}"
-        ></vxe-form-item>
-        <vxe-form-item
-          title="备注"
-          field="remark"
-          span="23"
-          :item-render="{name: 'textarea', attrs: {placeholder: '请输入备注'}}"
-        ></vxe-form-item>
-        <!-- 填写入库单-入库产品详情信息 -->
-        <vxe-form-item
-          title="入库产品信息"
-          span="24"
-          title-align="left"
-          title-width="200px"
-          :title-prefix="{message: '请填写必填项', icon: 'fa fa-info-circle'}"
-        ></vxe-form-item>
+      <div style="width:100%;height:30px;font-size:14px;color:#9898a0">>> 基本信息</div>
+      <div style="width:100%;height:150px">
+        <el-form :model="formInline" class="demo-form-inline" label-width="80px">
+          <!-- 入库单号 -->
+          <el-col :span="12">
+            <el-form-item label="入库单号">
+              <el-col :span="20">
+                <el-input v-model="formInline.num"></el-input>
+              </el-col>
+            </el-form-item>
+          </el-col>
+          <!-- 入库日期 -->
+          <el-col :span="12">
+            <el-form-item label="入库日期">
+              <el-col :span="20">
+                <el-date-picker v-model="formInline.date" type="date" placeholder="选择日期"></el-date-picker>
+              </el-col>
+            </el-form-item>
+          </el-col>
+
+          <!-- 备注 -->
+          <el-col :span="24">
+            <el-form-item label="备注">
+              <el-col :span="21">
+                <el-input type="textarea" v-model="formInline.remark"></el-input>
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-form>
+      </div>
+      <!-- ---------------子表(用vxe-table，而非vxe-form)-------------------- -->
+      <!-- 编辑表格-插入数据 -->
+      <div style="width:100%;height:30px;font-size:14px;color:#9898a0">>> 详细信息</div>
+      <div style="width:100%;height:auto">
         <vxe-toolbar>
           <template v-slot:buttons>
             <el-button icon="el-icon-plus" @click="insertRow()" class="greenBtn"></el-button>
             <!-- <el-button @click="insertRow(-1)">在最后行插入</el-button> -->
             <el-button @click="removeRow" icon="el-icon-delete" class="dangerBtn"></el-button>
-            <el-button @click="getSelectTion">Test</el-button>
           </template>
         </vxe-toolbar>
-        <!-- // TODO: 新增空值不能提交 -->
         <vxe-table
           border
           show-overflow
@@ -117,7 +108,6 @@
           :data="tableProductData"
           :edit-config="{trigger: 'click', mode: 'cell', icon: 'fa fa-pencil'}"
         >
-          // TODO: 输入校验
           <vxe-table-column type="checkbox" width="60"></vxe-table-column>
           <vxe-table-column type="seq" width="60"></vxe-table-column>
           <vxe-table-column
@@ -133,12 +123,7 @@
             :edit-render="{name: 'input',attrs: { type:'number'}}"
           ></vxe-table-column>
         </vxe-table>
-        <vxe-form-item
-          align="center"
-          span="24"
-          :item-render="{ name: '$buttons', children: [{ props: { type: 'submit', content: '提交', status: 'primary' } }, { props: { type: 'reset', content: '重置' } }] }"
-        ></vxe-form-item>
-      </vxe-form>
+      </div>
     </vxe-modal>
   </div>
 </template>
@@ -149,14 +134,20 @@ import globalStore from '../stores/global-stores'
 export default {
   data () {
     return {
+      // element 的表单数据
+      formInline: {
+        num: '',
+        date: '',
+        remark: ''
+      },
       submitLoading: false,
       tableBaseData: [],
       tableProductData: [
-        {
-          productName: '',
-          productSize: '',
-          amount: ''
-        }
+        // {
+        //   productName: '',
+        //   productSize: '',
+        //   amount: ''
+        // }
       ],
       // tableProductData 中的每一行详细数据
       productDetailData: {
@@ -198,6 +189,10 @@ export default {
     this.getTableBaseData()
   },
   methods: {
+    // element 表单提交事件
+    onSubmit () {
+      console.log('submit!')
+    },
     // 删除行
     removeRow () {
       this.$refs.xTable.removeCheckboxRow()
@@ -269,11 +264,11 @@ export default {
         remark: ''
       }
       this.tableProductData = [
-        {
-          productName: '',
-          productSize: '',
-          amount: ''
-        }
+        // {
+        //   productName: '',
+        //   productSize: '',
+        //   amount: ''
+        // }
       ]
       this.selectRow = null
       this.showEdit = true
@@ -298,7 +293,6 @@ export default {
       })
     },
     submitEvent () {
-      console.log(this.tableProductData)
       if (this.isProductDetailDataNull()) {
         this.submitLoading = true
         setTimeout(() => {
@@ -322,14 +316,13 @@ export default {
     },
     // 新增行
     async insertRow (row) {
-      console.log('tableProductData:', this.tableProductData)
       // 将行数据置空，可以push进父数组
-      this.productDetailData = {
-        productName: '',
-        productSize: '',
-        amount: ''
-      }
-      this.tableProductData.push(this.productDetailData)
+      // this.productDetailData = {
+      //   productName: '',
+      //   productSize: '',
+      //   amount: ''
+      // }
+      // this.tableProductData.push(this.productDetailData)
       let { row: newRow } = await this.$refs.xTable.insertAt(row)
       await this.$refs.xTable.setActiveCell(newRow, 'sex')
     },

@@ -4,6 +4,8 @@ import Router from 'vue-router'
 import StockIn from '@/views/StockIn'
 import Inventory from '@/views/Inventory'
 import StockOut from '@/views/StockOut'
+import StockInCopy from '@/views/StockInCopy'
+import StockOutCopy from '@/views/StockOutCopy'
 
 Vue.use(Router)
 
@@ -20,6 +22,11 @@ export default new Router({
       component: StockIn
     },
     {
+      path: '/1-1-2',
+      name: 'StockInCopy',
+      component: StockInCopy
+    },
+    {
       path: '/2-1-1',
       name: 'Inventory',
       component: Inventory
@@ -28,6 +35,11 @@ export default new Router({
       path: '/3',
       name: 'StockOut',
       component: StockOut
+    },
+    {
+      path: '/4',
+      name: 'StockOutCopy',
+      component: StockOutCopy
     }
   ]
 })
