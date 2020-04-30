@@ -119,11 +119,11 @@
             :edit-render="{name: 'input'}"
           ></vxe-table-column>
           <vxe-table-column field="productSize" title="产品规格" :edit-render="{name: 'input'}"></vxe-table-column>
-          <vxe-table-column
-            field="amount"
-            title="数量"
-            :edit-render="{name: 'input',attrs: { type:'number',max:'100'}}"
-          ></vxe-table-column>
+
+          <!-- :edit-render="{name: 'input',attrs: { type:'number',max:selectData.maxAmount}}" -->
+          <vxe-table-column field="amount" title="数量">
+            <vxe-input type="number"></vxe-input>
+          </vxe-table-column>
         </vxe-table>
         <div style="display:flex;justify-content:center;margin-top:20px;">
           <el-button type="primary">提交</el-button>
@@ -161,6 +161,7 @@ export default {
   },
   data () {
     return {
+      test: 100,
       stockOutForm: {
         num: '',
         date: '',
