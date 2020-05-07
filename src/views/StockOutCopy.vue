@@ -59,18 +59,18 @@
       <!------------------------------------ 表单部分 ---------------------------------->
       <div style="width:100%;height:30px;font-size:14px;color:#9898a0">>> 基本信息</div>
       <div style="width:100%;height:150px">
-        <el-form :model="formInline" class="demo-form-inline" label-width="80px">
+        <el-form :model="formInline" class="demo-form-inline" :rules="formRules" label-width="80px">
           <!-- 入库单号 -->
           <el-col :span="12">
-            <el-form-item label="出库单号">
+            <el-form-item label="出库单号" prop="num">
               <el-col :span="20">
-                <el-input v-model="stockOutForm.num"></el-input>
+                <el-input v-model="stockOutForm.num" clearable maxlength="10"></el-input>
               </el-col>
             </el-form-item>
           </el-col>
           <!-- 入库日期 -->
           <el-col :span="12">
-            <el-form-item label="出库日期">
+            <el-form-item label="出库日期" prop="date">
               <el-col :span="20">
                 <el-date-picker v-model="stockOutForm.date" type="date" placeholder="选择日期"></el-date-picker>
               </el-col>
@@ -81,7 +81,7 @@
           <el-col :span="24">
             <el-form-item label="备注">
               <el-col :span="21">
-                <el-input type="textarea" v-model="stockOutForm.remark"></el-input>
+                <el-input type="textarea" v-model="stockOutForm.remark" resize="none"></el-input>
               </el-col>
             </el-form-item>
           </el-col>
@@ -93,40 +93,40 @@
         <vxe-toolbar>
           <template v-slot:buttons>
             <el-button icon="el-icon-plus" class="greenBtn" @click="choseInventory">选择库存</el-button>
-            <el-button
-              @click="$refs.xTable.removeCheckboxRow()"
-              icon="el-icon-delete"
-              class="dangerBtn"
-            ></el-button>
+            <el-button @click="deleteRowData" icon="el-icon-delete" class="dangerBtn"></el-button>
           </template>
         </vxe-toolbar>
         <!-- 表格：从库存选择过来的数据 -->
         <vxe-table
           border
           show-overflow
-          ref="xTable"
+          ref="productTable"
           class="my_table_insert"
           max-height="200"
           :data="selectData"
           :edit-config="{trigger: 'click', mode: 'cell', icon: 'fa fa-pencil'}"
+          :edit-rules="tableRules"
         >
           <vxe-table-column type="checkbox" width="60"></vxe-table-column>
           <vxe-table-column type="seq" width="60"></vxe-table-column>
           <vxe-table-column
             field="productName"
             title="产品名称"
-            :edit-rules="{name:[{required:true,message:'Is can not null!'}]}"
-            :edit-render="{name: 'input'}"
+            :edit-render="{name: 'input',attrs:{disabled:'false'}}"
           ></vxe-table-column>
-          <vxe-table-column field="productSize" title="产品规格" :edit-render="{name: 'input'}"></vxe-table-column>
-
-          <!-- :edit-render="{name: 'input',attrs: { type:'number',max:selectData.maxAmount}}" -->
-          <vxe-table-column field="amount" title="数量">
-            <vxe-input type="number"></vxe-input>
-          </vxe-table-column>
+          <vxe-table-column
+            field="productSize"
+            title="产品规格"
+            :edit-render="{name: 'input',attrs:{disabled:'false'}}"
+          ></vxe-table-column>
+          <vxe-table-column
+            field="amount"
+            title="数量"
+            :edit-render="{name: 'input',attrs: { type:'number',max:maxAmount}}"
+          ></vxe-table-column>
         </vxe-table>
         <div style="display:flex;justify-content:center;margin-top:20px;">
-          <el-button type="primary">提交</el-button>
+          <el-button type="primary" @click="commitEvent">提交</el-button>
           <el-button type="default">取消</el-button>
         </div>
       </div>
@@ -191,12 +191,24 @@ export default {
         remark: null
       },
       formRules: {
-        stockInNum: [
-          { required: true, message: '请输入名称' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符' }
+        num: [
+          { required: true, message: '请输入出库单号' },
+          { min: 1, max: 10, message: '长度在 1 到 10 个字符' }
         ],
-        stockInDate: [
-          { required: true, message: '请输入日期' }
+        date: [
+          { required: true, message: '请选择出库日期' }
+        ]
+      },
+      tableRules: {
+        // TODO: 如何判断该数组长度为0（当新增一条空数据时可以进行校验，但长度为0时则无法）
+        productName: [
+          { required: true, message: '请输入产品名称' }
+        ],
+        productSize: [
+          { required: true, message: '请输入产品规格' }
+        ],
+        amount: [
+          { required: true, message: '请输入出库数量' }
         ]
       }
     }
@@ -210,17 +222,25 @@ export default {
     this.cutBreadTitle()
   },
   methods: {
-    // // 将选择出来的数据作为全局数据存储
-    // // 设置输入数值不能大于库存
-    // // 选择库存之后应该为 push 到最后一行数据，而非覆盖
-    // TODO: 不能选择一样的东西
-    // ? 1.可否使用缓存，存放已勾选过的数据，选过来后直接覆盖原数组
-    // ! 1.但是这样就有一个问题：在我修改完数量之后，再继续选库存的话，数量就会被重置
-    // ? 2.可否当数组取过来时，多加一个存放row_id的数组，用该数组传到子组件中，去比对就可以减少循环的次数
-    // ? 2.若有重复就不给勾选
-    // ? 3.将rowid传进去，禁用掉对应rowid 的checkbox
-    // TODO: reserve-selection 可以保持在数据更新后，选中项不变（用于查库存时可以边查边选）
-    // TODO: 删除出库产品
+    /** 删除事件：删除行数据的同时，也删除存放row_id中的对应id */
+    deleteRowData () {
+      // 删除行数据
+      this.$refs.productTable.removeCheckboxRow()
+      // 删除数组中的数据
+      let insertRecords = this.$refs.productTable.getRecordset()
+      for (var i = 0; i < insertRecords.removeRecords.length; i++) {
+        for (var j = 0; j < this.selectDataId.length; j++) {
+          if (this.selectDataId[j] === insertRecords.removeRecords[i]._XID) {
+            this.selectDataId.splice(j, 1)
+          }
+        }
+      }
+    },
+    /** 提交事件 */
+    commitEvent () {
+      console.log('this.selectData', this.selectData)
+    },
+    // 保存当前选中的值
     getListData (list) {
       this.selectDataId = []
       for (var i = 0; i < list.length; i++) {
@@ -234,7 +254,7 @@ export default {
       console.log('selectData:', this.selectData)
     },
     cutBreadTitle () {
-      globalStore.commit('cutPage', 3)
+      globalStore.commit('cutPage', 4)
     },
     mockTableBaseData () {
       var Mock = require('mockjs')

@@ -69,7 +69,7 @@ export default {
                 },
                 {
                   index: '1-1-2',
-                  title: '入库1-1-2',
+                  title: '入库（新）',
                   isShow: true,
                   icon: 'el-icon-s-operation',
                   child: null

@@ -60,18 +60,24 @@
     >
       <div style="width:100%;height:30px;font-size:14px;color:#9898a0">>> 基本信息</div>
       <div style="width:100%;height:150px">
-        <el-form :model="formInline" class="demo-form-inline" label-width="80px">
+        <el-form
+          :model="formInline"
+          :rules="formRules"
+          ref="formRef"
+          class="demo-form-inline"
+          label-width="80px"
+        >
           <!-- 入库单号 -->
           <el-col :span="12">
-            <el-form-item label="入库单号">
+            <el-form-item label="入库单号" prop="num">
               <el-col :span="20">
-                <el-input v-model="formInline.num"></el-input>
+                <el-input v-model="formInline.num" clearable maxlength="10"></el-input>
               </el-col>
             </el-form-item>
           </el-col>
           <!-- 入库日期 -->
           <el-col :span="12">
-            <el-form-item label="入库日期">
+            <el-form-item label="入库日期" prop="date">
               <el-col :span="20">
                 <el-date-picker v-model="formInline.date" type="date" placeholder="选择日期"></el-date-picker>
               </el-col>
@@ -82,7 +88,7 @@
           <el-col :span="24">
             <el-form-item label="备注">
               <el-col :span="21">
-                <el-input type="textarea" v-model="formInline.remark"></el-input>
+                <el-input type="textarea" v-model="formInline.remark" clearable resize="none"></el-input>
               </el-col>
             </el-form-item>
           </el-col>
@@ -107,15 +113,11 @@
           max-height="200"
           :data="tableProductData"
           :edit-config="{trigger: 'click', mode: 'cell', icon: 'fa fa-pencil'}"
+          :edit-rules="tableRules"
         >
           <vxe-table-column type="checkbox" width="60"></vxe-table-column>
           <vxe-table-column type="seq" width="60"></vxe-table-column>
-          <vxe-table-column
-            field="productName"
-            title="产品名称"
-            :edit-rules="{name:[{required:true,message:'Is can not null!'}]}"
-            :edit-render="{name: 'input'}"
-          ></vxe-table-column>
+          <vxe-table-column field="productName" title="产品名称" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column field="productSize" title="产品规格" :edit-render="{name: 'input'}"></vxe-table-column>
           <vxe-table-column
             field="amount"
@@ -123,6 +125,9 @@
             :edit-render="{name: 'input',attrs: { type:'number'}}"
           ></vxe-table-column>
         </vxe-table>
+      </div>
+      <div style="margin-top:10px;display:flex;justify-content:center">
+        <el-button class="greenBtn" @click="commitEvent()">提交</el-button>
       </div>
     </vxe-modal>
   </div>
@@ -169,12 +174,24 @@ export default {
         remark: null
       },
       formRules: {
-        stockInNum: [
-          { required: true, message: '请输入名称' },
-          { min: 3, max: 5, message: '长度在 3 到 5 个字符' }
+        num: [
+          { required: true, message: '请输入入库单号' },
+          { min: 1, max: 10, message: '长度在 1 到 10 个字符' }
         ],
-        stockInDate: [
-          { required: true, message: '请输入日期' }
+        date: [
+          { required: true, message: '请选择入库日期' }
+        ]
+      },
+      tableRules: {
+        // TODO: 如何判断该数组长度为0（当新增一条空数据时可以进行校验，但长度为0时则无法）
+        productName: [
+          { required: true, message: '请输入产品名称' }
+        ],
+        productSize: [
+          { required: true, message: '请输入产品规格' }
+        ],
+        amount: [
+          { required: true, message: '请输入入库数量' }
         ]
       }
     }
@@ -190,8 +207,30 @@ export default {
   },
   methods: {
     // element 表单提交事件
-    onSubmit () {
-      console.log('submit!')
+    commitEvent () {
+      console.log('--------------- submitStart -----------------')
+      this.$refs.formRef.validate((valid) => {
+        if (valid) {
+          console.log('submit')
+        } else {
+          console.log('errorSubmit')
+        }
+      })
+      /** 判断：若数组为空 或 数组中字段有空值 ==> 提交失败 */
+      let insertRecords = this.$refs.xTable.getInsertRecords()
+      if (insertRecords.length === 0) {
+        alert('errortwosubmit')
+      } else {
+        this.$refs.xTable.validate((valid) => {
+          if (valid) {
+            console.log('twosubmit')
+          } else {
+            console.log('errortwosubmit')
+          }
+        })
+      }
+      // TODO 分成两个请求，第一个请求：入库单基础信息。第二个请求：入库单号+表格内容
+      console.log('--------------- submitEnd -----------------')
     },
     // 删除行
     removeRow () {
@@ -222,7 +261,7 @@ export default {
     // 切换面包屑名称显示
     cutBreadTitle () {
       console.log(globalStore.state.currentPage)
-      globalStore.commit('cutPage', '1-1-1')
+      globalStore.commit('cutPage', '1-1-2')
     },
     mockTableBaseData () {
       var Mock = require('mockjs')
